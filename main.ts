@@ -22,15 +22,27 @@ const EXPECTED_HEIGHT = 1024;
 
 function readPngSize(buffer: Buffer): { width: number; height: number } {
   // PNG signature (8 bytes), then the IHDR chunk: length (4) + "IHDR" (4)
-  // + width (4 bytes, big-endian) + height (4 bytes, big-endian).
+  // + width (4 bytes, big-endian) + height (4 bytes, big-endian)
+  // + bit depth (1 byte) + colour type (1 byte).
   const PNG_SIGNATURE = Buffer.from([
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   ]);
-  if (buffer.length < 24 || !buffer.subarray(0, 8).equals(PNG_SIGNATURE)) {
+  if (buffer.length < 29 || !buffer.subarray(0, 8).equals(PNG_SIGNATURE)) {
     throw new Error("entry.png is not a PNG file");
   }
   if (buffer.toString("ascii", 12, 16) !== "IHDR") {
     throw new Error("entry.png has no IHDR chunk where one is expected");
+  }
+  // entry.png was drawn as an 8-bit RGB picture (bit depth 8, colour
+  // type 2). A palette, greyscale or 16-bit picture with the right
+  // dimensions would still be the wrong picture, so reject it here
+  // instead of passing it on to the grader.
+  const bitDepth = buffer[24];
+  const colourType = buffer[25];
+  if (bitDepth !== 8 || colourType !== 2) {
+    throw new Error(
+      `entry.png is not 8-bit RGB (bit depth ${bitDepth}, colour type ${colourType}), expected bit depth 8, colour type 2`,
+    );
   }
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
 }
