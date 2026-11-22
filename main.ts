@@ -5,12 +5,12 @@
 // /output/entry.png, or MAKEFUN_OUTPUT_DIR/entry.png when that is set.
 // Node 22, standard library only, no network, deterministic output.
 //
-// Revision: before copying, the program now validates the source picture
-// against the bounty limits (a real PNG, 1024x1024, at most 1 MiB) and
-// verifies the written output afterwards, so a broken or oversized
-// picture fails loudly here instead of silently reaching the grader.
-// The output check also re-reads the PNG header from the written file
-// to confirm its dimensions are still 1024x1024 on disk.
+// The program validates the source picture against the bounty limits
+// before copying it (a real PNG, 1024x1024, at most 1 MiB) and verifies
+// the written output afterwards, so a broken or oversized picture fails
+// loudly here instead of silently reaching the grader. The output check
+// also re-reads the PNG header from the written file to confirm its
+// dimensions are still 1024x1024 on disk.
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
